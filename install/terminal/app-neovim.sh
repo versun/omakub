@@ -1,10 +1,24 @@
+# Detect architecture
+ARCH=$(uname -m)
+NVIM_URL=""
+if [ "$ARCH" = "x86_64" ]; then
+    NVIM_URL="https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
+elif [ "$ARCH" = "aarch64" ]; then
+    NVIM_URL="https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz"
+else
+    echo "Unsupported architecture: $ARCH"
+    exit 1
+fi
+
 cd /tmp
-wget -O nvim.tar.gz "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
+wget -O nvim.tar.gz "$NVIM_URL"
 tar -xf nvim.tar.gz
-sudo install nvim-linux64/bin/nvim /usr/local/bin/nvim
-sudo cp -R nvim-linux64/lib /usr/local/
-sudo cp -R nvim-linux64/share /usr/local/
-rm -rf nvim-linux64 nvim.tar.gz
+# Adjust directory name based on architecture
+NVIM_DIR=$([ "$ARCH" = "x86_64" ] && echo "nvim-linux64" || echo "nvim-linux-arm64")
+sudo install $NVIM_DIR/bin/nvim /usr/local/bin/nvim
+sudo cp -R $NVIM_DIR/lib /usr/local/
+sudo cp -R $NVIM_DIR/share /usr/local/
+rm -rf $NVIM_DIR nvim.tar.gz
 cd -
 
 # Only attempt to set configuration if Neovim has never been run
